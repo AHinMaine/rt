@@ -268,8 +268,9 @@ sub SetLifecycle {
     if ( $value && $value ne 'default' ) {
         return (0, $self->loc('[_1] is not valid lifecycle', $value ))
             unless $self->ValidateLifecycle( $value );
-    } else {
-        $value = undef;
+    }
+    else {
+        $value ||= 'default';
     }
 
     return $self->_Set( Field => 'Lifecycle', Value => $value, @_ );
@@ -412,8 +413,9 @@ sub Create {
     if ( $args{'Lifecycle'} && $args{'Lifecycle'} ne 'default' ) {
         return ( 0, $self->loc('Invalid lifecycle name') )
             unless $self->ValidateLifecycle( $args{'Lifecycle'} );
-    } else {
-        $args{'Lifecycle'} = undef;
+    }
+    else {
+        $args{'Lifecycle'} ||= 'default';
     }
 
     my %attrs = map {$_ => 1} $self->ReadableAttributes;
@@ -1211,6 +1213,13 @@ sub _Set {
     unless ( $self->CurrentUserHasRight('AdminQueue') ) {
         return ( 0, $self->loc('Permission Denied') );
     }
+
+    my %args = (
+        Field => undef,
+        Value => undef,
+        IsSQL => undef,
+        @_
+    );
     return ( $self->SUPER::_Set(@_) );
 }
 
@@ -1524,7 +1533,7 @@ sub _CoreAccessible {
         SubjectTag => 
         {read => 1, write => 1, sql_type => 12, length => 120,  is_blob => 0,  is_numeric => 0,  type => 'varchar(120)', default => ''},
         Lifecycle => 
-        {read => 1, write => 1, sql_type => 12, length => 32,  is_blob => 0,  is_numeric => 0,  type => 'varchar(32)', default => ''},
+        {read => 1, write => 1, sql_type => 12, length => 32,  is_blob => 0, is_numeric => 0,  type => 'varchar(32)', default => 'default'},
         InitialPriority => 
         {read => 1, write => 1, sql_type => 4, length => 11,  is_blob => 0,  is_numeric => 1,  type => 'int(11)', default => '0'},
         FinalPriority => 
