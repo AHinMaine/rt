@@ -69,7 +69,7 @@ sub Groupings {
         {
             push @fields,
               $self->CurrentUser->loc($type) . ' '
-              . $self->CurrentUser->loc($field), $type . '.' . $_;
+              . $self->CurrentUser->loc($field), $type . '.' . $field;
         }
     }
 
