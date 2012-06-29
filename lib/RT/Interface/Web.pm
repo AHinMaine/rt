@@ -1588,6 +1588,7 @@ sub CreateTicket {
         Cc      => $ARGS{'Cc'},
         Body    => $sigless,
         Type    => $ARGS{'ContentType'},
+        Interface => $ARGS{'Interface'} || 'Web',
     );
 
     if ( $ARGS{'Attachments'} ) {
@@ -1770,6 +1771,7 @@ sub ProcessUpdateMessage {
         ARGSRef           => undef,
         TicketObj         => undef,
         SkipSignatureOnly => 1,
+        Interface         => 'Web',
         @_
     );
 
@@ -1807,6 +1809,7 @@ sub ProcessUpdateMessage {
         Subject => $args{ARGSRef}->{'UpdateSubject'},
         Body    => $args{ARGSRef}->{'UpdateContent'},
         Type    => $args{ARGSRef}->{'UpdateContentType'},
+        Interface => $args{Interface},
     );
 
     $Message->head->replace( 'Message-ID' => Encode::encode_utf8(
@@ -1937,11 +1940,13 @@ sub MakeMIMEEntity {
         Body                => undef,
         AttachmentFieldName => undef,
         Type                => undef,
+        Interface           => 'Web',
         @_,
     );
     my $Message = MIME::Entity->build(
         Type    => 'multipart/mixed',
         "Message-Id" => Encode::encode_utf8( RT::Interface::Email::GenMessageId ),
+        "X-RT-Interface" => $args{Interface},
         map { $_ => Encode::encode_utf8( $args{ $_} ) }
             grep defined $args{$_}, qw(Subject From Cc)
     );
