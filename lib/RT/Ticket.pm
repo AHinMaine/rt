@@ -3284,6 +3284,28 @@ sub SeenUpTo {
     return $txns->First;
 }
 
+=head2 RanTransactionBatch
+
+Acts as a guard around running TransactionBatch scrips.
+
+Should be false until you enter the code that runs TransactionBatch scrips
+
+Accepts an optional argument to indicate that TransactionBatch Scrips should no longer be run on this object.
+
+=cut
+
+sub RanTransactionBatch {
+    my $self = shift;
+    my $val = shift;
+
+    if ( defined $val ) {
+        return $self->{_RanTransactionBatch} = $val;
+    } else {
+        return $self->{_RanTransactionBatch};
+    }
+
+}
+
 
 =head2 TransactionBatch
 
@@ -3310,6 +3332,7 @@ batch is applied when object is destroyed, but in some cases it's too late.
 sub ApplyTransactionBatch {
     my $self = shift;
 
+    return if $self->RanTransactionBatch;
     my $batch = $self->TransactionBatch;
     return unless $batch && @$batch;
 
@@ -3320,6 +3343,8 @@ sub ApplyTransactionBatch {
 
 sub _ApplyTransactionBatch {
     my $self = shift;
+
+    $self->RanTransactionBatch(1);
     my $batch = $self->TransactionBatch;
 
     my %seen;
@@ -3367,6 +3392,7 @@ sub DESTROY {
         return;
     }
 
+    return if $self->RanTransactionBatch;
     my $batch = $self->TransactionBatch;
     return unless $batch && @$batch;
 

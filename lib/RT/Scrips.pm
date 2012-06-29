@@ -189,10 +189,6 @@ sub Commit {
                         TransactionObj => $self->{'TransactionObj'} );
     }
 
-    # make sure our cached TicketObj doesn't trigger a DESTROY and
-    # run all the TransactionBatch code again.
-    delete $self->{'TicketObj'}->{'_TransactionBatch'};
-
 }
 
 
@@ -293,6 +289,9 @@ sub _SetupSourceObjects {
         $self->{'TicketObj'}->Load( $args{'TicketObj'}->Id );
         if ( $args{'TicketObj'}->TransactionBatch ) {
             $self->{'TicketObj'}->{'_TransactionBatch'} = delete $args{'TicketObj'}->{'_TransactionBatch'};
+            # try to ensure that we won't infinite loop if something dies, triggering DESTROY while 
+            # we have the _TransactionBatch objects;
+            $self->{'TicketObj'}->RanTransactionBatch(1);
         }
     }
     else {
