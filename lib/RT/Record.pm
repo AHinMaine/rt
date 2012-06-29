@@ -604,6 +604,7 @@ sub ValidateName {
     my $self = shift;
     my $value = shift;
     if (defined $value && $value=~ /^\d+$/) {
+        $RT::Logger->warning("Name validation failure: Numeric ID invalid");
         return(0);
     } else  {
         return(1);
